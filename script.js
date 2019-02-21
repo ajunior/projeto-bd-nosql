@@ -1,93 +1,15 @@
-> Projeto da Disciplina de Banco de Dados 2 - Parte NoSQL, conforme roteiro entregue pela professora.
+// Criando o banco: 
 
-# 1. Descrição da Aplicação 
-Jogo educacional de perguntas e respostas para dispositivos móveis (celular e tablet) com foco nos estudantes do ensino fundamental, objetivando disponibilizar uma plataforma para incrementar e testar o aprendizado adquirido na sala de aula.
-
-## a. Resumir o escopo de dados 
-O sistema consiste de duas partes: uma plataforma web, para cadastro de usuários, questões, disciplinas e demais informações inerentes ao jogo e um aplicativo para dispositivo móvel. Os usuário receberam pontos, de acordo com o nível da questão, para cada pergunta corretamente respondida. Cada questão será composta por cinco alternativas, sendo apenas uma verdadeira. Cada questão terá um tema que está diretamente ligada a uma disciplina. Os usuários podem vincular uma escola ao seu perfil. Os usuários poderão ver sua colocação no ranking geral de pontos dos usuários, bem como sua colocação no ranking por estado, cidade e escola.
-
-# 2. Modelo Entidade-Relacionamento em nível Conceitual (diagrama) 
-
-## a. Somente das entidades alvo do projeto 
-![](modeloconceitual/ifpb-bd2-conceitual.png)
-
-### i. Escolher três ou quatro 
-Todas as entidades do modelo conceitual serão utilizadas no projeto.
-
-### ii. Incluir: atributos simples, multivalorado, composto, opcional, relacionamentos 
-- Todos os **atributos simples** do modelo conceitual estão presentes nos documentos;
-- **Atributo multivalorado**: as entidades ```cidade``` e ```uf``` tornaram-se atributo composto ```localizacao: { cidade: String, uf: String }``` nas coleções ```questao``` e ```usuario```.
-- **Atributo composto**: foi adicionado o atributo ```telefone: []``` na coleção ```usuario```.
-- **Atributo opcional**: ```ìmagem``` da entidade questão não foi incluído na coleção ```questao```.
-- **Relacionamento**: o relacionamento ```responde``` entre as entidades ```usuario``` e ```questao``` foi incluído como referência nas coleções ```usuario``` e ```questao```.
-
-## b. Descrever mapeamento entre as entidades e coleções de documentos no MongoDB 
-
-| Modelo Conceitual ER | Tipo no ER | MongoDB | Tipo no MongoDB | Observação |
-| --- | --- | --- | --- | --- |
-| Questao | Entidade | Questao | Coleção | |
-| id | Chave primária | Campo _id | Campo simples | Campo obrigatório e de identificação em todos os documentos |
-| descricao | Atributo simples | Campo descricao | Campo simples | Campo obrigatório em todos os documentos |
-| imagem | Atributo opcional | Campo imagem | Campo simples | Campo opcional |
-| Nivel | Entidade | Nivel | Campo - Estrutura (embutido) | Campo obrigatório em todos os documentos |
-| id | Chave Primária | | | Não foi incluído na coleção |
-| nivel | Atributo simples | descricao | Campo simples | Campo obrigatório em todos os documentos |
-| pontuacao | Atributo simples | pontuacao | Campo simples | Campo obrigatório em todos os documentos |
-| Tema | Entidade | Tema | Campo - Estrutura (embutido) | Campo obrigatório em todos os documentos |
-| id | Chave Primária | | | Não foi incluído na coleção |
-| nome | Atributo simples | nome | Campo simples | Campo obrigatório em todos os documentos |
-| Disciplina | Entidade | disciplina | Campo - Estrutura (embutido) | Campo obrigatório em todos os documentos |
-| id | Chave Primária | | | Não foi incluído na coleção |
-| nome | Atributo simples | nome | Campo simples | Campo obrigatório em todos os documentos |
-| Alternativa | Entidade | alternativa | Campo - Estrutura (embutido) | Campo obrigatório em todos os documentos |
-| id | Chave Primária | | | Não foi incluído na coleção |
-| descricao | Atributo simples | descricao | Campo simples | Campo obrigatório em todos os documentos |
-| correta | Atributo simples | correta | Campo simples | Campo obrigatório em todos os documentos |
-| Usuario | Entidade | Usuario | Coleção | Principal entidade do projeto |
-| id | Chave primária | Campo _id | Campo simples | Campo obrigatório e de identificação em todos os documentos |
-| nome | Atributo simples | nome | Campo simples | Campo obrigatório em todos os documentos |
-| dtnasc | Atributo simples | dtnasc | Campo simples | Campo obrigatório em todos os documentos |
-| sexo | Atributo simples | sexo | Campo simples | Campo obrigatório em todos os documentos |
-| email | Atributo simples | email | Campo simples | Campo obrigatório em todos os documentos |
-| pontos | Atributo simples | pontos | Campo simples | Campo obrigatório em todos os documentos |
-| telefone | Atributo Multivalorado | telefone | Campo - Array | Campo opcional |
-| localizacao | Atributo Composto | localizacao | Campo - Estrutura (embutido) | Campo obrigatório em todos os documentos |
-| Escola | Entidade | escola | Campo - Estrutura (embutido) | Campo opcional |
-| id | Chave Primária | | | Não foi incluído na coleção |
-| nome | Atributo simples | nome | Campo simples | Campo obrigatório em todos os documentos |
-| localizacao | Atributo Composto | localizacao | Campo - Estrutura (embutido) | Campo obrigatório em todos os documentos |
-| Tipo | Entidade | tipo | Campo simples na Estrutura Escola | Campo obrigatório em todos os documentos |
-| Responde [Questão] | Relacionamento | Referência em Questao e Usuario | Referência | |
-
-# 3. Implementação do modelo no MongoDB 
-
-## a. Objetos básicos:  
-
-Criando o banco: 
-
-```javascript
 use mapaedu_db
-```
 
-### i. Coleções 
+// i. Coleções 
 
-Questao:
-
-```
 db.createCollection("questao")
-```
-
-Usuario:
-
-```
 db.createCollection("usuario")
-```
 
-### ii. Documentos 
+// ii. Documentos 
 
-Questões:
-
-```javascript
+// Questões:
 db.questao.insertMany([
     { _id: 1, descricao: "Na frase “Degue Mata. Se a gente bobear, ela volta. É hora de esquentar a briga contra o mosquito.”, a palavra ELA substitui a palavra:", tema: "Sujeito", disciplina: "Português", nivel: "Super Fácil", pontuacao: 1, alternativa: [ { descricao: "Dengue", correta: true }, { descricao: "Gente", correta: false }, { descricao: "Briga", correta: false }, { descricao: "Hora", correta: false }, { descricao: "Nenhuma das alternativas", correta: false } ], respostas: [ { _id: 1, resposta: true, data: new Date() }, { _id: 2, resposta: true, data: new Date() }, { _id: 3, resposta: true, data: new Date() }, { _id: 4, resposta: true, data: new Date() }, { _id: 5, resposta: true, data: new Date() } ] },
     { _id: 2, descricao: "Qual o tipo da frase: “Como se chama o teu gato?”.", tema: "Tipos de Frase", disciplina: "Português", nivel: "Super Fácil", pontuacao: 1, alternativa: [ { descricao: "Interrogativa", correta: true }, { descricao: "Exclamativa", correta: false }, { descricao: "Imperativa", correta: false }, { descricao: "Declarativa", correta: false }, { descricao: "Nenhuma das alternativas", correta: false } ], respostas: [ { _id: 1, resposta: true, data: new Date() }, { _id: 2, resposta: true, data: new Date() }, { _id: 3, resposta: true, data: new Date() }, { _id: 4, resposta: true, data: new Date() }, { _id: 5, resposta: true, data: new Date() } ] },
@@ -95,11 +17,8 @@ db.questao.insertMany([
     { _id: 4, descricao: "Qual a variedade linguística da frase: “Na hora de cumê, nois come; Na hora de bebe, nois bebe”.", tema: "Linguagem", disciplina: "Português", nivel: "Difícil", pontuacao: 7, alternativa: [ { descricao: "Linguagem formal", correta: false }, { descricao: "Linguagem errada", correta: false }, { descricao: "Linguagem informal", correta: true }, { descricao: "Linguagem animal", correta: false }, { descricao: "Nenhuma das alternativas", correta: false } ], respostas: [ { _id: 1, resposta: true, data: new Date() }, { _id: 2, resposta: true, data: new Date() }, { _id: 3, resposta: true, data: new Date() }, { _id: 4, resposta: true, data: new Date() }, { _id: 5, resposta: true, data: new Date() } ] },
     { _id: 5, descricao: "A palavra que possui mais letra do que fonema, é:", tema: "Fonema", disciplina: "Português", nivel: "Extremamente Difícil", pontuacao: 10, alternativa: [ { descricao: "Caderno", correta: false }, { descricao: "Chapéu", correta: true }, { descricao: "Flores", correta: false }, { descricao: "Livro", correta: false }, { descricao: "Nenhuma das alternativas", correta: false } ], respostas: [ { _id: 1, resposta: true, data: new Date() }, { _id: 2, resposta: true, data: new Date() }, { _id: 3, resposta: true, data: new Date() }, { _id: 4, resposta: true, data: new Date() }, { _id: 5, resposta: true, data: new Date() } ] }
 ])
-```
 
-Usuários:
-
-```javascript
+// Usuários:
 db.usuario.insertMany([
     { _id: 1, nome: "Adjamilton Junior", dtnasc: "2010/10/10", sexo: "m", email: "jr@ieee.org", telefone: ["83999440111", "8332240323"], localizacao: { cidade: "João Pessoa", uf: "PE" }, pontos: 150, escola: { nome: "IFPB", cidade: "João Pessoa", uf: "PB", tipo: "Federal" }, respostas: [ { _id: 1, resposta: true, data: new Date() }, { _id: 2, resposta: true, data: new Date() }, { _id: 3, resposta: true, data: new Date() }, { _id: 4, resposta: true, data: new Date() }, { _id: 5, resposta: true, data: new Date() } ] },
     
@@ -269,157 +188,76 @@ db.usuario.insertMany([
 
     { _id: 71, nome: "Gonçalves Silva", dtnasc: "2006/02/25", sexo: "m", email: "gsilva@gmail.com", telefone: ["83999440111", "8332240323"], localizacao: { cidade: "João Pessoa", uf: "PB" }, pontos: 100, escola: { nome: "GEO Sul", cidade: "João Pessoa", uf: "PB", tipo: "Privada" }, respostas: [ { _id: 2, resposta: true, data: new Date() } ] },
 ])
-```
 
-### iii. Índices 
+// iii. Índices 
 
-Questao: 
-
-```javascript
 db.questao.createIndex( { descricao: 1 } )
-```
-
-Usuario:
-
-```javascript
 db.usuario.createIndex( { nome: 1, pontos: -1 } )
-```
 
-## b. Operações de DML (CRUD): 
+// b. Operações de DML (CRUD): 
+// i. Inserções diversas  
+// ii. Atualizações (02)  
 
-### i. Inserções diversas  
-
-### ii. Atualizações (02)  
-
-Atualizando o nome do usuário ```Adjamilton Junior```.
-```javascript
+// Atualizando o nome do usuário Adjamilton Junior.
 db.usuario.update( { "nome": "Adjamilton Junior" }, { $set: { "nome": "Adjamilton M. A. Junior" } } )
-```
 
-Alterando a UF de PE para PB das cidades de João Pessoa e Campina Grande.
-```javascript
+// Alterando a UF de PE para PB das cidades de João Pessoa e Campina Grande.
 db.usuario.updateMany( { "localizacao.cidade": { $in: ["João Pessoa", "Campina Grande"] } }, { $set: { "localizacao.uf": "PB" } })
-```
 
-### iii. Remoção (01) 
-
-Removendo o usuário ```Gonçalves Silva```.
-```javascript
+// iii. Remoção (01) 
+// Removendo o usuário Gonçalves Silva.
 db.usuario.remove( { "nome": "Gonçalves Silva" } )
-```
 
-### iv. Consultas diversas 
-
-> - Todas as consultas devem apresentar seu enunciado e sua solução.
-> - Os comandos (todos) devem fazer sentido à aplicação e seus requisitos.
-
-- **01 com Coleção inteira**
-
-Todos os documentos da coleção ```questao``` de forma organizada.
-```javascript
+// iv. Consultas diversas 
+// - **01 com Coleção inteira**
+// Todos os documentos da coleção ```questao``` de forma organizada.
 db.questao.find().pretty()
-```
 
-- **01 com Contagem de documentos na coleção**
-
-Quantidade de documentos da coleção ```usuario```.
-```javascript
+// **01 com Contagem de documentos na coleção**
+// Quantidade de documentos da coleção ```usuario```.
 db.usuario.count()
-```
 
-- **03 consultas com filtros diversos (IN, GT, etc), sem projeção**
-
-Usuários com mais de 100 pontos.
-```javascript
+// **03 consultas com filtros diversos (IN, GT, etc), sem projeção**
+// Usuários com mais de 100 pontos.
 db.usuario.find( { "pontos": { $gt: 100 } } )
-```
 
-Usuários que estudam em escolas da cidade de **Campina Grande** e **Recife**.
-```javascript
+// Usuários que estudam em escolas da cidade de **Campina Grande** e **Recife**.
 db.usuario.find( { "escola.cidade": { $in: ["Campina Grande", "Recife"] } } )
-```
 
-Usuários com pontos maior que 100 ou que não marcaram nenhum ponto.
-```javascript
+// Usuários com pontos maior que 100 ou que não marcaram nenhum ponto.
 db.usuario.find( { $or: [ { "pontos": { $lt: 1 } }, { "pontos": { $gt: 100 } } ] } )
-```
 
-- **03 consultas com filtros diversos, com projeção**
-
-Nome dos usuários com mais de 100 pontos.
-```javascript
+// - **03 consultas com filtros diversos, com projeção**
+// Nome dos usuários com mais de 100 pontos.
 db.usuario.find( { "pontos": { $gt: 100 } }, { "nome": true } )
-```
 
-Nome dos usuários que ainda não pontuaram.
-```javascript 
+// Nome dos usuários que ainda não pontuaram. 
 db.usuario.find( { "pontos": { $lt: 1 } }, { _id: false, nome: true } )
-```
 
-Ranking dos usuários da Paraíba.
-```javascript
+// Ranking dos usuários da Paraíba.
 db.usuario.find( { "localizacao.uf": "PB" }, { _id: false, nome: true, pontos: true, "escola.nome": true } ).pretty()
-```
 
-- **01 consulta com filtro e projeção e uso de expressão regular**
-
-Usuários que moram em cidades cujo nome começam com **Camp**.
-```javascript
+// - **01 consulta com filtro e projeção e uso de expressão regular**
+// Usuários que moram em cidades cujo nome começam com **Camp**.
 db.usuario.find({ "localizacao.cidade": { $regex: /^Camp/ } }, { "nome": true } )
-```
 
-- **01 consulta com acesso a array de elementos**
-
-Descrição da(s) questão(ões) cuja a segunda alternativa seja a resposta correta.
-
-```javascript
+// - **01 consulta com acesso a array de elementos**
+// Descrição da(s) questão(ões) cuja a segunda alternativa seja a resposta correta.
 db.questao.find({ "alternativa.1.correta": true }, { "descricao": true } )
-```
 
-- **01 consulta com acesso a estrutura embutida**
+// - **01 consulta com acesso a estrutura embutida**
+// Listagem dos usuários estudantes da escola ```EEEFM Prof. Maria Helena Bronzeado```.
 
-Listagem dos usuários estudantes da escola ```EEEFM Prof. Maria Helena Bronzeado```.
-
-```javascript
 db.usuario.find( { "escola.nome": "EEEFM Prof. Maria Helena Bronzeado" } ).pretty()
-```
-- **01 consulta com função de agregação (sum, avg, max ou min)**
 
-Maior número de pontos.
-
-```javascript
+// - **01 consulta com função de agregação (sum, avg, max ou min)**
+// Maior número de pontos.
 db.usuario.aggregate({ $group : { _id: null, pontos: { $max: "$pontos"} } } )
-```
 
-- **01 consulta que use distinct ou limit**
-
-Três primeiros usuários por ordem alfabética do nome.
-
-```javascript
+// - **01 consulta que use distinct ou limit**
+// Três primeiros usuários por ordem alfabética do nome.
 db.usuario.find().sort({nome: 1}).limit(3).pretty()
-```
 
-- **01 outra consulta a seu critério, explicando o porquê dela**
-
-Quantidade de pontos por cidade.
-```javascript
+// - **01 outra consulta a seu critério, explicando o porquê dela**
+// Quantidade de pontos por cidade.
 db.usuario.aggregate( [ { $match: { "localizacao.cidade": "João Pessoa" } }, { $group: { _id: "$localizacao.cidade", "pontos": { $sum: "$pontos" } } } ] )
-```
-
-# 4. Análise do projeto quanto ao uso do MongoDB
-
-## a. Pontos positivos  
-As principais características do mongo que resultam em vantagens no desenvolvimento deste projeto são:
-
-- Simplicidade da linguagem de _query_ que facilita a manipulação e consulta dos documentos e coleções;
-- Modelos flexiveis de representação e armazenamento de dados, permitem atualizações na estrutura dos documentos sem ocasionar problemas;
-- suporte a replicação e distribuição dos dados. 
-
-Outras vantagens são **escalabilidade**, **disponibilidade**, **alto desempenho** e **confiabilidade**.
-
-## b. Pontos negativos 
-Em relação ao projeto, identifica-se quatro pontos negativos de usar o MongoDB, que são: 
-- Falta de compromisso com a consistência dos dados, passando para o programador a responsabilidade de entregar os dados “normalizados”; 
-- Não há garantia de integridade referencial, podendo causar perda da conexão entre os dados; 
-- Em grandes coleções, consultas que envolvam **referências** a outros documentos podem aumentar a latência; 
-- Perda da atomicidade dos dados.
